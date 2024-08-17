@@ -1,0 +1,976 @@
+{
+  "Uuid": "66346728-aa0c-4f02-a98c-bb9dfab71a41",
+  "IsCustomNode": false,
+  "Description": "",
+  "Name": "wall points drawing",
+  "ElementResolver": {
+    "ResolutionMap": {
+      "DSCore.Data.List": {
+        "Key": "DSCore.Data",
+        "Value": "DSCoreNodes.dll"
+      },
+      "DSCore.Data": {
+        "Key": "DSCore.Data",
+        "Value": "DSCoreNodes.dll"
+      },
+      "List": {
+        "Key": "List",
+        "Value": "BuiltIn.ds"
+      }
+    }
+  },
+  "Inputs": [],
+  "Outputs": [],
+  "Nodes": [
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Load the Python Standard and DesignScript Libraries\r\nimport sys\r\nimport clr\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\n# The inputs to this node will be stored as a list in the IN variables.\r\nsublists  = IN\r\n\r\n# Output list to store points\r\noutput_points = []\r\noutput_spheres = []\r\n\r\n# Loop through each sublist\r\nplane = []\r\nfor sublist in sublists:\r\n    # List to store points for current sublist\r\n    points = []\r\n    spheres = []\r\n\r\n\r\n    # Loop through each point in the sublist\r\n    for row in sublist:\r\n        for point in row:\r\n            id, x, y, z = point\r\n            # Create a point using the XYZ coordinates\r\n            pt = Point.ByCoordinates(x, y, z)\r\n            points.append(pt)\r\n            sp = Sphere.ByCenterPointRadius(pt, 0.05)\r\n            spheres.append(sp)\r\n            \r\n    # Add the points for the current sublist to the output list\r\n    output_points.append(points)\r\n    output_spheres.append(spheres)\r\n\r\n# Output the list of points\r\nOUT = output_points",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "813473a9ce004b8c9ddfe3a02eb6c47a",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [
+        {
+          "Id": "6e32af96199d489095df0f690eb06d1b",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "f1a2f8db19064d1c932678704967186d",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Load the Python Standard and DesignScript Libraries\r\nimport sys\r\nimport clr\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\nimport numpy as np\r\n\r\n# The inputs to this node will be stored as a list in the IN variables.\r\ndataEnteringNode = IN\r\ndata_array = np.array(dataEnteringNode)\r\n\r\n\r\n# Place your code below this line\r\ndef split_list_by_id(data):\r\n    ids = data[:, 0]  # First column with IDs\r\n    unique_ids, indices = np.unique(ids, return_index=True)\r\n    current_list = []\r\n    sublists = []\r\n    current_id = ids[0][0]\r\n    capture_id =  current_id  \r\n    \r\n    for d in data:\r\n        for id in d:\r\n           if current_id != id[0]:\r\n               current_id = id[0]\r\n               sublists.append(current_list)\r\n               current_list = []                          \r\n               current_list.append(id.tolist())\r\n           else:     \r\n                current_list.append(id.tolist())\r\n                \r\n    sublists.append(current_list)                \r\n                \r\n    return capture_id, sublists\r\n\r\ncapture_id, sublists = split_list_by_id(data_array)\r\n\r\n\r\n# Assign your output to the OUT variable.\r\nOUT = sublists",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "df50a133f5764ddfa11751e43963ddc7",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [
+        {
+          "Id": "88f9ff687fa04f7485cf630e3bd2c88c",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "e20ee352a3bf4a99891757e0b90e3c6a",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "Id": "1b312cc13506463489d18f20a9eebaaf",
+      "NodeType": "CodeBlockNode",
+      "Inputs": [
+        {
+          "Id": "054fcbf2e00d464487877600b34e1cd0",
+          "Name": "data",
+          "Description": "data",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "ef1f5497dab54d90a9401327aa5ef2e6",
+          "Name": "",
+          "Description": "dataTrans",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d6270c265a3e46daa9b1ee0e9000872b",
+          "Name": "",
+          "Description": "dropItems",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "d1f7a06b86ca4032989b3f93acecb4bd",
+          "Name": "",
+          "Description": "dropItemsTrans",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly",
+      "Code": "dataTrans = DSCore.List.Transpose(data);\ndropItems = DSCore.List.DropItems(dataTrans, 1);\ndropItemsTrans = DSCore.List.Transpose(dropItems);"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "Id": "a6c5d5543f4144f88d9fb64ea62ef833",
+      "NodeType": "FunctionNode",
+      "Inputs": [
+        {
+          "Id": "4831080f0fdb4f02bad30740ce00c967",
+          "Name": "filePath",
+          "Description": "CSV file to be converted into a list\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "46d3c5095d7748e492dc9b8c969624a6",
+          "Name": "transpose",
+          "Description": "Toggle to transpose the imported data\n\nbool\nDefault value : false",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "9b2b26fd29ae40a09f872619f91d685d",
+          "Name": "list",
+          "Description": "List containing the items in the CSV file",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "FunctionSignature": "DSOffice.Data.ImportCSV@string,bool",
+      "Replication": "Auto",
+      "Description": "Imports data from a CSV (comma separated values) file, put the items into a list and transpose it if needed.\n\nData.ImportCSV (filePath: string, transpose: bool = false): var[]..[]"
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "Id": "28ef7bcbc5124f64b2d52527b7b09377",
+      "NodeType": "ExtensionNode",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "85d9fffeb4ac40db8ca0473618a2c8b6",
+          "Name": "",
+          "Description": "File Path",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system and returns its file path",
+      "HintPath": "F:\\s_graphs_data_2024-8_17_10_19_51\\x_vert_planes\\plane_points.csv",
+      "InputValue": "F:\\s_graphs_data_2024-8_17_10_19_51\\x_vert_planes\\plane_points.csv"
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "Id": "a8ba7ed40f5d434e8f221dd284ce482d",
+      "NodeType": "ExtensionNode",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "f28d43f547184a67a1febec552f78c7a",
+          "Name": "",
+          "Description": "File Path",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system and returns its file path",
+      "HintPath": "F:\\s_graphs_data_2024-8_17_10_19_51\\y_vert_planes\\plane_points.csv",
+      "InputValue": "F:\\s_graphs_data_2024-8_17_10_19_51\\y_vert_planes\\plane_points.csv"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "Id": "2713df05777f459ab26bf5f68934c92d",
+      "NodeType": "FunctionNode",
+      "Inputs": [
+        {
+          "Id": "a1cdebfe868a4cac8f46e2247165de8c",
+          "Name": "filePath",
+          "Description": "CSV file to be converted into a list\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "0e8e57bec23f488385a1cc0924ab7826",
+          "Name": "transpose",
+          "Description": "Toggle to transpose the imported data\n\nbool\nDefault value : false",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "667adf63aa6448c5ad0e371e8ccbd29b",
+          "Name": "list",
+          "Description": "List containing the items in the CSV file",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "FunctionSignature": "DSOffice.Data.ImportCSV@string,bool",
+      "Replication": "Auto",
+      "Description": "Imports data from a CSV (comma separated values) file, put the items into a list and transpose it if needed.\n\nData.ImportCSV (filePath: string, transpose: bool = false): var[]..[]"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "Id": "f3426865dd434d29bf5113be2b15fb0d",
+      "NodeType": "CodeBlockNode",
+      "Inputs": [
+        {
+          "Id": "c346c976f49f4e3e98a173dfbb4efa13",
+          "Name": "data",
+          "Description": "data",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "1c9927f79a214928918624643f9400bb",
+          "Name": "",
+          "Description": "dataTrans",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "85e8ad3002de431f9360668bb608b8e4",
+          "Name": "",
+          "Description": "dropItems",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "aa30c0bce5ce4e8ca95975c7e2df3ec8",
+          "Name": "",
+          "Description": "dropItemsTrans",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly",
+      "Code": "dataTrans = DSCore.List.Transpose(data);\ndropItems = DSCore.List.DropItems(dataTrans, 1);\ndropItemsTrans = DSCore.List.Transpose(dropItems);"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Load the Python Standard and DesignScript Libraries\r\nimport sys\r\nimport clr\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\nimport numpy as np\r\n\r\n# The inputs to this node will be stored as a list in the IN variables.\r\ndataEnteringNode = IN\r\ndata_array = np.array(dataEnteringNode)\r\n\r\n\r\n# Place your code below this line\r\ndef split_list_by_id(data):\r\n    ids = data[:, 0]  # First column with IDs\r\n    unique_ids, indices = np.unique(ids, return_index=True)\r\n    current_list = []\r\n    sublists = []\r\n    current_id = ids[0][0]\r\n    capture_id =  current_id  \r\n    \r\n    for d in data:\r\n        for id in d:\r\n           if current_id != id[0]:\r\n               current_id = id[0]\r\n               sublists.append(current_list)\r\n               current_list = []                          \r\n               current_list.append(id.tolist())\r\n           else:     \r\n                current_list.append(id.tolist())\r\n                \r\n    sublists.append(current_list)                \r\n                \r\n    return capture_id, sublists\r\n\r\ncapture_id, sublists = split_list_by_id(data_array)\r\n\r\n\r\n# Assign your output to the OUT variable.\r\nOUT = sublists",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "06b88fc2add54b41a6f3b341df225b42",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [
+        {
+          "Id": "447f7bec1a004912aa39d255861c6269",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "89d99ab135a140cb98dcf353489e2886",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Load the Python Standard and DesignScript Libraries\r\nimport sys\r\nimport clr\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\n# The inputs to this node will be stored as a list in the IN variables.\r\nsublists  = IN\r\n\r\n# Output list to store points\r\noutput_points = []\r\noutput_spheres = []\r\n\r\n# Loop through each sublist\r\nplane = []\r\nfor sublist in sublists:\r\n    # List to store points for current sublist\r\n    points = []\r\n    spheres = []\r\n\r\n\r\n    # Loop through each point in the sublist\r\n    for row in sublist:\r\n        for point in row:\r\n            id, x, y, z = point\r\n            # Create a point using the XYZ coordinates\r\n            pt = Point.ByCoordinates(x, y, z)\r\n            points.append(pt)\r\n            sp = Sphere.ByCenterPointRadius(pt, 0.05)\r\n            spheres.append(sp)\r\n            \r\n    # Add the points for the current sublist to the output list\r\n    output_points.append(points)\r\n    output_spheres.append(spheres)\r\n\r\n# Output the list of points\r\nOUT = output_points",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "75d79c9b609f4842bc8d6858eeb8a781",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [
+        {
+          "Id": "d0786c135bbb4f06b1280360733da2f5",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "b956f52bf4434352a9dc6ff4192de94f",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Input.Filename, CoreNodeModels",
+      "Id": "bcc25d420738424786e77be18d919921",
+      "NodeType": "ExtensionNode",
+      "Inputs": [],
+      "Outputs": [
+        {
+          "Id": "260a882a485e4df79b0f88c3fd310d42",
+          "Name": "",
+          "Description": "File Path",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows you to select a file on the system and returns its file path",
+      "HintPath": "F:\\s_graphs_data_2024-8_17_10_19_51\\walls\\wall_points.csv",
+      "InputValue": "F:\\s_graphs_data_2024-8_17_10_19_51\\walls\\wall_points.csv"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.ZeroTouch.DSFunction, DynamoCore",
+      "Id": "16121cfae6bf4d5fab6bee288f773f1c",
+      "NodeType": "FunctionNode",
+      "Inputs": [
+        {
+          "Id": "71b18e3bf3db4f1aa4b589e05e4d4e63",
+          "Name": "filePath",
+          "Description": "CSV file to be converted into a list\n\nstring",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "c0fffaac82af4f4f813d3ea3a7c1fad9",
+          "Name": "transpose",
+          "Description": "Toggle to transpose the imported data\n\nbool\nDefault value : false",
+          "UsingDefaultValue": true,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "67236ab441d94cc18cab9891133e786d",
+          "Name": "list",
+          "Description": "List containing the items in the CSV file",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "FunctionSignature": "DSOffice.Data.ImportCSV@string,bool",
+      "Replication": "Auto",
+      "Description": "Imports data from a CSV (comma separated values) file, put the items into a list and transpose it if needed.\n\nData.ImportCSV (filePath: string, transpose: bool = false): var[]..[]"
+    },
+    {
+      "ConcreteType": "Dynamo.Graph.Nodes.CodeBlockNodeModel, DynamoCore",
+      "Id": "9bb7b77b06e1410092cc2e4e9c1275fd",
+      "NodeType": "CodeBlockNode",
+      "Inputs": [
+        {
+          "Id": "94acec555d06466cac327e3bf27fbad4",
+          "Name": "data",
+          "Description": "data",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "20f683086eb94f3083fe9efecd8f4532",
+          "Name": "",
+          "Description": "dataTrans",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "42227c9e7e5b42d3a00df0cd0700666a",
+          "Name": "",
+          "Description": "dropItems",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        },
+        {
+          "Id": "badffead8efe40b69e57bdb63c671afb",
+          "Name": "",
+          "Description": "dropItemsTrans",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Allows for DesignScript code to be authored directly",
+      "Code": "dataTrans = DSCore.List.Transpose(data);\ndropItems = DSCore.List.DropItems(dataTrans, 1);\ndropItemsTrans = DSCore.List.Transpose(dropItems);"
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Load the Python Standard and DesignScript Libraries\r\nimport sys\r\nimport clr\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\nimport numpy as np\r\n\r\n# The inputs to this node will be stored as a list in the IN variables.\r\ndataEnteringNode = IN\r\ndata_array = np.array(dataEnteringNode)\r\n\r\n\r\n# Place your code below this line\r\ndef split_list_by_id(data):\r\n    ids = data[:, 0]  # First column with IDs\r\n    unique_ids, indices = np.unique(ids, return_index=True)\r\n    current_list = []\r\n    sublists = []\r\n    current_id = ids[0][0]\r\n    capture_id =  current_id  \r\n    \r\n    for d in data:\r\n        for id in d:\r\n           if current_id != id[0]:\r\n               current_id = id[0]\r\n               sublists.append(current_list)\r\n               current_list = []                          \r\n               current_list.append(id.tolist())\r\n           else:     \r\n                current_list.append(id.tolist())\r\n                \r\n    sublists.append(current_list)                \r\n                \r\n    return capture_id, sublists\r\n\r\ncapture_id, sublists = split_list_by_id(data_array)\r\n\r\n\r\n# Assign your output to the OUT variable.\r\nOUT = sublists",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "dc11564efb854890b48fd106094f48ca",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [
+        {
+          "Id": "9c40eb4c8f8f4e918fe42fe9103cfa1a",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "4e82a552f65641e2986a8b2987b29e7b",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "PythonNodeModels.PythonNode, PythonNodeModels",
+      "Code": "# Load the Python Standard and DesignScript Libraries\r\nimport sys\r\nimport clr\r\nclr.AddReference('ProtoGeometry')\r\nfrom Autodesk.DesignScript.Geometry import *\r\n\r\n# The inputs to this node will be stored as a list in the IN variables.\r\nsublists  = IN\r\n\r\n# Output list to store points\r\noutput_points = []\r\noutput_spheres = []\r\n\r\n# Loop through each sublist\r\nplane = []\r\nfor sublist in sublists:\r\n    # List to store points for current sublist\r\n    points = []\r\n    spheres = []\r\n\r\n\r\n    # Loop through each point in the sublist\r\n    for row in sublist:\r\n        for point in row:\r\n            id, x, y, z = point\r\n            # Create a point using the XYZ coordinates\r\n            pt = Point.ByCoordinates(x, y, z)\r\n            points.append(pt)\r\n            sp = Sphere.ByCenterPointRadius(pt, 0.05)\r\n            spheres.append(sp)\r\n            \r\n    # Add the points for the current sublist to the output list\r\n    output_points.append(points)\r\n    output_spheres.append(spheres)\r\n\r\n# Output the list of points\r\nOUT = output_points",
+      "Engine": "CPython3",
+      "EngineName": "CPython3",
+      "VariableInputPorts": true,
+      "Id": "141eb3ab23894368814c24832c77217f",
+      "NodeType": "PythonScriptNode",
+      "Inputs": [
+        {
+          "Id": "a5cf7f6e69654270aa68aeff2bde8140",
+          "Name": "IN[0]",
+          "Description": "Input #0",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "349b3c303e084cc8b2144f2b11ecfaa0",
+          "Name": "OUT",
+          "Description": "Result of the python script",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Runs an embedded Python script."
+    },
+    {
+      "ConcreteType": "CoreNodeModels.Watch, CoreNodeModels",
+      "WatchWidth": 200.0,
+      "WatchHeight": 200.0,
+      "Id": "f9566b9ecaa64108ba41ecd26d4129bd",
+      "NodeType": "ExtensionNode",
+      "Inputs": [
+        {
+          "Id": "6876444613b0477789c45dcc94fb05e9",
+          "Name": "",
+          "Description": "Node to show output from",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Outputs": [
+        {
+          "Id": "e1ee558bb4d74a349dd381c9042e6b79",
+          "Name": "",
+          "Description": "Node output",
+          "UsingDefaultValue": false,
+          "Level": 2,
+          "UseLevels": false,
+          "KeepListStructure": false
+        }
+      ],
+      "Replication": "Disabled",
+      "Description": "Visualizes a node's output"
+    }
+  ],
+  "Connectors": [
+    {
+      "Start": "e20ee352a3bf4a99891757e0b90e3c6a",
+      "End": "6e32af96199d489095df0f690eb06d1b",
+      "Id": "8aeda40ac4ff4e1ea91723f18a354e8d",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "d6270c265a3e46daa9b1ee0e9000872b",
+      "End": "88f9ff687fa04f7485cf630e3bd2c88c",
+      "Id": "8463b309cc7d47ec97712977be318d11",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "9b2b26fd29ae40a09f872619f91d685d",
+      "End": "054fcbf2e00d464487877600b34e1cd0",
+      "Id": "5dd8e3f505834bc0ad6b69ad0c56cfac",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "85d9fffeb4ac40db8ca0473618a2c8b6",
+      "End": "4831080f0fdb4f02bad30740ce00c967",
+      "Id": "b8b8bc2ab24041c79317175691a53ad2",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "f28d43f547184a67a1febec552f78c7a",
+      "End": "a1cdebfe868a4cac8f46e2247165de8c",
+      "Id": "de075aea30504040bc14b06d13732abc",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "667adf63aa6448c5ad0e371e8ccbd29b",
+      "End": "c346c976f49f4e3e98a173dfbb4efa13",
+      "Id": "b944ccb7c683442093b36cb2135c4a63",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "85e8ad3002de431f9360668bb608b8e4",
+      "End": "447f7bec1a004912aa39d255861c6269",
+      "Id": "175d777724364232b8b924077e167d69",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "89d99ab135a140cb98dcf353489e2886",
+      "End": "d0786c135bbb4f06b1280360733da2f5",
+      "Id": "6508e6cf96b84da286bce755238a9b9c",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "260a882a485e4df79b0f88c3fd310d42",
+      "End": "71b18e3bf3db4f1aa4b589e05e4d4e63",
+      "Id": "066d4253998a471aa11286798910aa46",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "67236ab441d94cc18cab9891133e786d",
+      "End": "94acec555d06466cac327e3bf27fbad4",
+      "Id": "a3c3323a6cbb4710a0be7e1e04229e1e",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "42227c9e7e5b42d3a00df0cd0700666a",
+      "End": "9c40eb4c8f8f4e918fe42fe9103cfa1a",
+      "Id": "c9e5be8725fc4fb1a6884f5d9d617bcb",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "42227c9e7e5b42d3a00df0cd0700666a",
+      "End": "6876444613b0477789c45dcc94fb05e9",
+      "Id": "f159d9d3a59d422484b29f688ff5208c",
+      "IsHidden": "False"
+    },
+    {
+      "Start": "4e82a552f65641e2986a8b2987b29e7b",
+      "End": "a5cf7f6e69654270aa68aeff2bde8140",
+      "Id": "1d9d8c221ccc4b17b9370f9a520eb0cf",
+      "IsHidden": "False"
+    }
+  ],
+  "Dependencies": [],
+  "NodeLibraryDependencies": [
+    {
+      "Name": "plane_points.csv",
+      "ReferenceType": "External",
+      "Nodes": [
+        "28ef7bcbc5124f64b2d52527b7b09377"
+      ]
+    },
+    {
+      "Name": "plane_points.csv",
+      "ReferenceType": "External",
+      "Nodes": [
+        "a8ba7ed40f5d434e8f221dd284ce482d"
+      ]
+    },
+    {
+      "Name": "wall_points.csv",
+      "ReferenceType": "External",
+      "Nodes": [
+        "bcc25d420738424786e77be18d919921"
+      ]
+    }
+  ],
+  "Thumbnail": "",
+  "GraphDocumentationURL": null,
+  "ExtensionWorkspaceData": [
+    {
+      "ExtensionGuid": "28992e1d-abb9-417f-8b1b-05e053bee670",
+      "Name": "Properties",
+      "Version": "2.18",
+      "Data": {}
+    },
+    {
+      "ExtensionGuid": "DFBD9CC0-DB40-457A-939E-8C8555555A9D",
+      "Name": "Generative Design",
+      "Version": "6.0",
+      "Data": {}
+    }
+  ],
+  "Author": "",
+  "Linting": {
+    "activeLinter": "None",
+    "activeLinterId": "7b75fb44-43fd-4631-a878-29f4d5d8399a",
+    "warningCount": 0,
+    "errorCount": 0
+  },
+  "Bindings": [],
+  "View": {
+    "Dynamo": {
+      "ScaleFactor": 1.0,
+      "HasRunWithoutCrash": true,
+      "IsVisibleInDynamoLibrary": true,
+      "Version": "2.18.1.5096",
+      "RunType": "Manual",
+      "RunPeriod": "1000"
+    },
+    "Camera": {
+      "Name": "_Background Preview",
+      "EyeX": 2.5461077690124512,
+      "EyeY": 24.314544677734375,
+      "EyeZ": -3.2588119506835938,
+      "LookX": -5.0806784629821777,
+      "LookY": -13.544454574584961,
+      "LookZ": 1.2489328384399414,
+      "UpX": -0.80977827310562134,
+      "UpY": 0.5519365668296814,
+      "UpZ": 0.19906073808670044
+    },
+    "ConnectorPins": [],
+    "NodeViews": [
+      {
+        "Id": "813473a9ce004b8c9ddfe3a02eb6c47a",
+        "Name": "Python Script",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 1124.1190271396372,
+        "Y": 5029.0906381283721
+      },
+      {
+        "Id": "df50a133f5764ddfa11751e43963ddc7",
+        "Name": "Python Script to Create Sublists",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 751.06044619617751,
+        "Y": 5032.0709518510521
+      },
+      {
+        "Id": "1b312cc13506463489d18f20a9eebaaf",
+        "Name": "Code Block",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 187.0824299390074,
+        "Y": 5086.8087963729968
+      },
+      {
+        "Id": "a6c5d5543f4144f88d9fb64ea62ef833",
+        "Name": "Data.ImportCSV",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 51.638077597020128,
+        "Y": 4854.6833280634173
+      },
+      {
+        "Id": "28ef7bcbc5124f64b2d52527b7b09377",
+        "Name": "File Path",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": -400.25401675841749,
+        "Y": 4842.564657172542
+      },
+      {
+        "Id": "a8ba7ed40f5d434e8f221dd284ce482d",
+        "Name": "File Path",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": -404.30438382496231,
+        "Y": 5426.50814583179
+      },
+      {
+        "Id": "2713df05777f459ab26bf5f68934c92d",
+        "Name": "Data.ImportCSV",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 54.63504322021663,
+        "Y": 5442.1504830675322
+      },
+      {
+        "Id": "f3426865dd434d29bf5113be2b15fb0d",
+        "Name": "Code Block",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 183.03206287246257,
+        "Y": 5670.7522850322493
+      },
+      {
+        "Id": "06b88fc2add54b41a6f3b341df225b42",
+        "Name": "Python Script to Create Sublists",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 747.01007912963451,
+        "Y": 5616.0144405102992
+      },
+      {
+        "Id": "75d79c9b609f4842bc8d6858eeb8a781",
+        "Name": "Python Script",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 1120.0686600730946,
+        "Y": 5613.0341267876192
+      },
+      {
+        "Id": "bcc25d420738424786e77be18d919921",
+        "Name": "File Path",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": -184.07455692190706,
+        "Y": 6184.9740539443583
+      },
+      {
+        "Id": "16121cfae6bf4d5fab6bee288f773f1c",
+        "Name": "Data.ImportCSV",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 274.86487012327143,
+        "Y": 6200.6163911800986
+      },
+      {
+        "Id": "9bb7b77b06e1410092cc2e4e9c1275fd",
+        "Name": "Code Block",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 403.26188977551783,
+        "Y": 6429.2181931448185
+      },
+      {
+        "Id": "dc11564efb854890b48fd106094f48ca",
+        "Name": "Python Script to Create Sublists",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 967.23990603268976,
+        "Y": 6374.4803486228684
+      },
+      {
+        "Id": "141eb3ab23894368814c24832c77217f",
+        "Name": "Python Script",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 1340.2984869761449,
+        "Y": 6371.5000349001884
+      },
+      {
+        "Id": "f9566b9ecaa64108ba41ecd26d4129bd",
+        "Name": "Watch",
+        "IsSetAsInput": false,
+        "IsSetAsOutput": false,
+        "Excluded": false,
+        "ShowGeometry": true,
+        "X": 945.69114107932592,
+        "Y": 6556.2080082093607
+      }
+    ],
+    "Annotations": [
+      {
+        "Id": "5c77704ab7454b11af1d96577fcbe60f",
+        "Title": "Get X Wall Surface Point Cloud",
+        "DescriptionText": "Description <Double click here to edit group description>",
+        "IsExpanded": true,
+        "WidthAdjustment": 0.0,
+        "HeightAdjustment": 0.0,
+        "Nodes": [
+          "28ef7bcbc5124f64b2d52527b7b09377",
+          "a6c5d5543f4144f88d9fb64ea62ef833",
+          "1b312cc13506463489d18f20a9eebaaf",
+          "df50a133f5764ddfa11751e43963ddc7",
+          "813473a9ce004b8c9ddfe3a02eb6c47a"
+        ],
+        "HasNestedGroups": false,
+        "Left": -410.25401675841749,
+        "Top": 4769.564657172542,
+        "Width": 1718.3730438980547,
+        "Height": 475.24413920045481,
+        "FontSize": 36.0,
+        "GroupStyleId": "00000000-0000-0000-0000-000000000000",
+        "InitialTop": 4842.564657172542,
+        "InitialHeight": 389.24413920045481,
+        "TextblockHeight": 63.0,
+        "Background": "#FFC1D676"
+      },
+      {
+        "Id": "5eba54a85f744d709657223391575a39",
+        "Title": "Get Y Wall Surface Point Cloud",
+        "DescriptionText": "Description <Double click here to edit group description>",
+        "IsExpanded": true,
+        "WidthAdjustment": 0.0,
+        "HeightAdjustment": 0.0,
+        "Nodes": [
+          "a8ba7ed40f5d434e8f221dd284ce482d",
+          "2713df05777f459ab26bf5f68934c92d",
+          "f3426865dd434d29bf5113be2b15fb0d",
+          "06b88fc2add54b41a6f3b341df225b42",
+          "75d79c9b609f4842bc8d6858eeb8a781"
+        ],
+        "HasNestedGroups": false,
+        "Left": -414.30438382496231,
+        "Top": 5353.50814583179,
+        "Width": 1718.3730438980569,
+        "Height": 475.24413920045936,
+        "FontSize": 36.0,
+        "GroupStyleId": "00000000-0000-0000-0000-000000000000",
+        "InitialTop": 5426.50814583179,
+        "InitialHeight": 389.24413920045936,
+        "TextblockHeight": 63.0,
+        "Background": "#FFC1D676"
+      },
+      {
+        "Id": "043f1dadaa90441da3b68a91d08c2b36",
+        "Title": "Get Walls Point Cloud",
+        "DescriptionText": "Description <Double click here to edit group description>",
+        "IsExpanded": true,
+        "WidthAdjustment": 0.0,
+        "HeightAdjustment": 0.0,
+        "Nodes": [
+          "bcc25d420738424786e77be18d919921",
+          "16121cfae6bf4d5fab6bee288f773f1c",
+          "9bb7b77b06e1410092cc2e4e9c1275fd",
+          "dc11564efb854890b48fd106094f48ca",
+          "141eb3ab23894368814c24832c77217f",
+          "f9566b9ecaa64108ba41ecd26d4129bd"
+        ],
+        "HasNestedGroups": false,
+        "Left": -194.07455692190706,
+        "Top": 6111.9740539443583,
+        "Width": 1718.3730438980519,
+        "Height": 742.23395426500247,
+        "FontSize": 36.0,
+        "GroupStyleId": "00000000-0000-0000-0000-000000000000",
+        "InitialTop": 6184.9740539443583,
+        "InitialHeight": 516.23395426500247,
+        "TextblockHeight": 63.0,
+        "Background": "#FFC1D676"
+      }
+    ],
+    "X": 472.67054736271882,
+    "Y": -2365.5573681188716,
+    "Zoom": 0.46467269092220836
+  }
+}
